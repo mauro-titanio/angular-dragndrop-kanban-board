@@ -1,0 +1,22 @@
+$primary: #141719;
+$secondary: #383e44;
+$light: #f8f9fa;
+$btn-padding-x: 1.3rem;
+$btn-padding-y: 0.5rem;
+$input-btn-border-width: 0;
+$input-btn-focus-width: 0;
+$btn-focus-width: 0;
+$font-family-base: 'Karla',
+sans-serif;
+$headings-font-family: 'Montserrat',
+sans-serif;
+$spinner-animation-speed: 100ms;
+$input-bg: inherit;
+$input-color: $light;
+$input-plaintext-color: $light;
+$form-floating-line-height: 0.1em;
+$form-floating-height:calc($form-floating-line-height + $form-floating-padding-y);
+$form-floating-padding-y: 0.5rem;
+$form-floating-input-padding-t: 0.5rem;
+$form-floating-input-padding-b: 0.5rem;
+$form-floating-label-transform: scale(.75) translateY(-1.3rem) translateX(.15rem);

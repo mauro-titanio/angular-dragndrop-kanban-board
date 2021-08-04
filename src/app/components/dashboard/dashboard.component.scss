@@ -1,0 +1,18 @@
+@import "../../../variables.scss";
+.sidenav {
+    width: 20%;
+    display: block;
+    height: 100%;
+    padding: 0;
+    overflow: hidden;
+    transition: width 100ms linear 200ms, opacity 200ms ease;
+}
+
+li .menu-dot {
+    opacity: 0;
+    transition: opacity 200ms ease;
+}
+
+li:hover .menu-dot {
+    opacity: 1;
+}

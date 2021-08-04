@@ -1,0 +1,158 @@
+<div class="container py-4">
+    <h4>{{project.title}}</h4>
+</div>
+
+
+<div class="row">
+    <div class="col-lg-4 col-md-6 col-sm-12 px-4">
+        <div class="container py-2">
+            <h6 class="fw-light px-2">Para hacer</h6>
+        </div>
+        <div class="container d-block">
+            <div cdkDropList #todoList="cdkDropList" id="todo-List" [cdkDropListData]="toDos" [cdkDropListConnectedTo]="[doneList, doingList]" class="example-list min-h" (cdkDropListDropped)="drop($event)">
+                <div *ngFor="let item of toDos; let i = index" cdkDrag (mousedown)="getTaskID(item.id, i)">
+                    <div [id]="'card-todo' + i" class="py-3 px-2 rounded-3 mb-2 grid-card" [ngClass]="{'bg-dark': item.title != ''}">
+                        <div class="text-center"><i [id]="'priority-' + i" class="bi bi-clock" [ngClass]="{'text-danger': item.priority == 'urgent', 'text-muted': item.priority == 'normal'}"></i>
+                            <div [id]="'spinner-' + i" class="spinner-border spinner-border-sm text-warning border-1 hide" role="status"></div>
+                        </div>
+                        <div>{{item.title}}</div>
+                        <div class="text-center">
+                            <div class="menu-dot dropdown"><i class="bi bi-three-dots-vertical" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false"></i>
+                                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                    <li>
+                                        <a class="dropdown-item" (click)="changePriority(i)"><span *ngIf="item.priority == 'normal'">Marcar como urgente</span><span *ngIf="item.priority == 'urgent'">Marcar como normal</span> </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" (click)="showRenameForm(i)">Renombrar tarea</a>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li><a class="dropdown-item" hover-class="bg-danger" (click)="deleteCompletedTask(item.id)">Eliminar tarea</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div [id]="'list-form-todo' + i" class="card bg-dark text-start hide py-2 mb-2">
+                        <div class="card-body">
+                            <form [formGroup]="tForm">
+                                <div class="form-floating mb-4">
+                                    <input (keydown.enter)="renameT($event)" class="form-control border border-secondary" placeholder="Leave a comment here" id="floatingText" formControlName="title" autocomplete="off" [ngClass]="{'is-invalid': tForm.controls['title'].invalid && (tForm.controls['title'].dirty || tForm.controls['title'].touched)}">
+                                    <label for="floatingTextarea">Título</label>
+                                </div>
+                                <div class="container">
+                                    <div class="row">
+                                        <div class="col-6 text-center">
+                                            <button class="btn btn-sm btn-secondary w-100" (click)="showRenameForm(i)">Cancelar</button>
+                                        </div>
+                                        <div class="col-6 text-center">
+                                            <button class="btn btn-sm btn-warning w-100" (click)="renameTask()">Actualizar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="container">
+            <div class="px-3 pointer op-hover small w-75" *ngIf="!newTaskForm" hover-class="text-warning">
+                <p (click)="toggleNewTaskForm()"><i class="bi bi-plus-circle text-warning me-2"></i>Añadir tarea</p>
+            </div>
+            <div class="card bg-dark text-start py-2" *ngIf="newTaskForm">
+                <div class="card-body">
+                    <form [formGroup]="tForm">
+                        <div class="form-floating mb-4">
+                            <input (keydown.enter)="addT($event)" class="form-control border border-secondary" placeholder="Leave" id="floatingTextarea" formControlName="title" autocomplete="off" [ngClass]="{'is-invalid': tForm.controls['title'].invalid && (tForm.controls['title'].dirty || tForm.controls['title'].touched)}">
+                            <label for="floatingTextarea">Título</label>
+                        </div>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-6 text-center">
+                                    <button id="closeNewTask" class="btn btn-sm btn-secondary w-100" (click)="toggleNewTaskForm()">Cancelar</button>
+                                </div>
+                                <div class="col-6 text-center">
+                                    <button id="add-button" class="btn btn-sm btn-warning w-100" (click)="addTask()">Añadir</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-lg-4 col-md-6 col-sm-12 px-4">
+        <div class="container py-2">
+            <h6 class="fw-light px-2">En proceso</h6>
+        </div>
+        <div class="container ">
+            <div cdkDropList #doingList="cdkDropList" id="doing-List" [cdkDropListData]="doingTasks" [cdkDropListConnectedTo]="[todoList, doneList]" class="example-list min-h" (cdkDropListDropped)="drop($event)">
+                <div *ngFor="let item of doingTasks; let i = index" cdkDrag (mousedown)="getTaskID(item.id, i)">
+                    <div [id]="'card-doing' + i" class="py-3 px-2 rounded-3 mb-2 grid-card" [ngClass]="{'bg-dark': item.title != ''}">
+                        <div class="text-center"><i [id]="'priorityDoing-' + i" class="bi bi-clock" [ngClass]="{'text-danger': item.priority == 'urgent', 'text-muted': item.priority == 'normal'}"></i>
+                            <div [id]="'spinnerDoing-' + i" class="spinner-border spinner-border-sm text-warning border-1 hide" role="status"></div>
+                        </div>
+                        <div>{{item.title}}</div>
+                        <div class="text-center">
+                            <div class="menu-dot dropdown"><i class="bi bi-three-dots-vertical" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false"></i>
+                                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                    <li>
+                                        <a class="dropdown-item" (click)="changePriority(i)"><span *ngIf="item.priority == 'normal'">Marcar como urgente</span><span *ngIf="item.priority == 'urgent'">Marcar como normal</span></a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" (click)="showRenameForm(i)">Renombrar tarea</a>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li><a class="dropdown-item" hover-class="bg-danger" (click)="deleteCompletedTask(item.id)">Eliminar tarea</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div [id]="'list-form-doing' + i" class="card bg-dark text-start hide py-2 mb-2">
+                        <div class="card-body">
+                            <form [formGroup]="tForm">
+                                <div class="form-floating mb-4">
+                                    <input (keydown.enter)="renameT($event)" class="form-control border border-secondary" placeholder="Leave a comment here" id="floatingTextarea" formControlName="title" autocomplete="off" [ngClass]="{'is-invalid': tForm.controls['title'].invalid && (tForm.controls['title'].dirty || tForm.controls['title'].touched)}">
+                                    <label for="floatingTextarea">Título</label>
+                                </div>
+                                <div class="container">
+                                    <div class="row">
+                                        <div class="col-6 text-center">
+                                            <button class="btn btn-sm btn-secondary w-100" (click)="showRenameForm(i)">Cancelar</button>
+                                        </div>
+                                        <div class="col-6 text-center">
+                                            <button class="btn btn-sm btn-warning w-100" (click)="renameTask()">Actualizar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-lg-4 col-md-6 col-sm-12 px-4">
+        <div class="container py-2">
+            <h6 class="fw-light px-2">Terminadas</h6>
+        </div>
+        <div class="container ">
+            <div cdkDropList #doneList="cdkDropList" id="done-List" [cdkDropListData]="doneTasks" [cdkDropListConnectedTo]="[todoList, doingList]" class="example-list min-h" (cdkDropListDropped)="drop($event)">
+                <div class="py-3 px-2 rounded-3 mb-2 grid-card" [ngClass]="{'bg-dark': item.title != ''}" *ngFor="let item of doneTasks; let i = index" cdkDrag (mousedown)="getTaskID(item.id, i)">
+                    <div class="text-center text-success"><i class="bi bi-check-circle"></i></div>
+                    <div class="text-truncate text-decoration-line-through text-muted">{{item.title}}</div>
+                    <div class="text-center text-muted" *ngIf="item.title != ''"><i class="bi bi-trash" hover-class="text-danger" (click)="deleteCompletedTask(item.id)"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,126 @@
+<ngx-spinner [name]="'logIn'" bdColor="#141719" size="default" color="#fff" type="square-spin" [fullScreen]="true">
+    <p style="color: white"> Loading... </p>
+</ngx-spinner>
+<div [ngClass]="{'op-0': mainHide}">
+    <div id="navbar" class="container-fluid px-0 mx-0">
+        <div class="row justify-content-between border-bottom border-secondary">
+            <div class="col-2 pt-3 px-3 ms-2">
+                <i class="bi bi-list h3" (click)="toggleSidenav()"></i>
+            </div>
+            <div class="col-1 py-2">
+                <div class="g-0 text-center mx-auto">
+                    <img [src]="user.photoURL" width="50px" class="border border-2 border-secondary rounded-circle mx-auto dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" alt="">
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><button class="dropdown-item" type="button" hover-class="text-danger" (click)="logout()">Cerrar sesión</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="sidenav" *ngIf="showSide" (mouseover)="plusShow = true" (mouseleave)="plusShow = false" [ngStyle]="{'height': mainContainerHeight + 'px'}">
+            <div class="container py-5">
+                <div class="p-2 grid-card">
+                    <div class="text-center"><i class="bi bi-pin-angle"></i></div>
+                    <div>
+                        <h6 class="mt-2">Proyectos</h6>
+                    </div>
+                    <div class="text-center">
+                        <i class="bi bi-plus-circle-fill text-warning" data-bs-toggle="modal" data-bs-target="#createModal" *ngIf="plusShow"></i>
+                    </div>
+                </div>
+                <div cdkDropList id="projects-list" class="example-list" (cdkDropListDropped)="drop($event)">
+                    <div class="example-box" *ngFor="let p of projects, let i = index," cdkDrag (mousedown)="readThisProject(p.id)">
+                        <div [id]="'card-project' + i" class="p-2 rounded-3 mb-2 grid-card" hover-class="bg-dark">
+                            <div class="text-center">
+                                <i [id]="'circleP' + i" class="bi" [ngClass]="{'bi-circle text-muted': p.pinned == false, 'bi-star-fill text-warning': p.pinned == true}"></i>
+                                <div [id]="'spinnerP' + i" class="spinner-grow spinner-grow-sm text-muted border-1 hide" role="status"></div>
+                            </div>
+                            <div class="text-truncate max-t-w"><a [routerLink]="['/dashboard', p.id ]">{{p.title}}</a></div>
+                            <div class="text-center">
+                                <div class="menu-dot dropdown" *ngIf="plusShow"><i class="bi bi-three-dots" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false"></i>
+                                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                        <li>
+                                            <a class="dropdown-item" (click)="pinProject(i)"><span *ngIf="p.pinned == false">Marcar como favorito</span><span *ngIf="p.pinned == true">Marcar como normal</span></a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" (click)="showRenameForm(i)">Renombrar proyecto</a>
+                                        </li>
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+                                        <li><a class="dropdown-item" hover-class="bg-danger" data-bs-toggle="modal" data-bs-target="#deleteProject">Eliminar proyecto</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div [id]="'list-form-project' + i" class="py-2 hide">
+                            <form [formGroup]="pForm">
+                                <div class="form-floating mb-2">
+                                    <input class="form-control border border-secondary" placeholder="Leave a comment here" id="floatingTextarea" formControlName="title" autocomplete="off" [ngClass]="{'is-invalid': pForm.controls['title'].invalid && (pForm.controls['title'].dirty || pForm.controls['title'].touched)}">
+                                    <label for="floatingTextarea">Nombre</label>
+                                </div>
+                                <div class="text-end">
+                                    <button class="btn btn-sm btn-warning" (click)="renameProject()">Actualizar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="main col bg-secondary" [ngStyle]="{'height': mainContainerHeight + 'px'}">
+            <router-outlet></router-outlet>
+        </div>
+    </div>
+</div>
+
+
+<!--Modals-->
+<div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form [formGroup]="pForm">
+            <div class="modal-content bg-primary">
+                <div class="modal-header">
+                    <h6 class="modal-title" id="exampleModalLabel">Añadir proyecto</h6>
+                    <button type="button" id="closeNewProjectModal" class="btn-close btn-close-white btn-sm" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ngx-spinner [name]="'new-P-spinner'" bdColor="#141719" size="default" color="#fff" type="cube-transition" [fullScreen]="true">
+                        <p style="color: white">Creando {{f.title.value}}</p>
+                    </ngx-spinner>
+                    <div class="mb-3">
+                        <label for="exampleFormControlInput1" class="form-label">Nombre</label>
+                        <input type="text" class="form-control border border-secondary" id="exampleFormControlInput1" placeholder="" formControlName="title" autocomplete="off" [ngClass]="{'is-invalid': pForm.controls['title'].invalid && (pForm.controls['title'].dirty || pForm.controls['title'].touched)}"
+                            (keyup.enter)="createProject()">
+                    </div>
+                </div>
+                <div class="modal-footer" *ngIf="!loadNP">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-warning" (click)="createProject()">Añadir</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteProject" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content bg-primary">
+            <div class="modal-header">
+                <h6 class="modal-title" id="exampleModalLabel">Eliminar proyecto</h6>
+                <button type="button" id="closeDelete" class="btn-close btn-close-white btn-sm" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-4 text-center">
+                <ngx-spinner [name]="'del-P-spinner'" bdColor="#141719" size="default" color="#fff" type="ball-scale" [fullScreen]="true">
+                    <p style="color: white">Eliminando {{selectedProject.title}}</p>
+                </ngx-spinner>
+                <p><span class="fw-lighter">¿Eliminar el proyecto </span>{{selectedProject.title}}<span class="fw-lighter">?</span> </p>
+            </div>
+            <div class="modal-footer" *ngIf="!loadNP">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" (click)="deleteP()">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
